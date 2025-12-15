@@ -35,6 +35,10 @@ export async function getAllAutori(req, res) {
         if (error) {
             throw error;
         }
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Nessun autore trovato' });
+        }
+
         res.json(rows);
     } catch (error) {
         await errorLogger(`[getAllAutori] - Errore durante il recupero degli autori: ${error.message}\n`).catch(console.error);
@@ -126,7 +130,7 @@ export async function updateAutore(req, res) {
             .from('autori')
             .update({ nome_autore })
             .eq('id_autore', id_autore)
-            .select('*'); // Ottieni i record aggiornati
+            .select('*');
 
         if (error) {
             // 23505: Violazione del vincolo UNIQUE
