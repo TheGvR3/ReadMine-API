@@ -6,7 +6,7 @@ export async function getTipo(req, res) {
         const { data: rows, error } = await supabase
             .from("tipo")
             .select("*")
-            .order("nome_tipo", { ascending: true });
+            .order("id_tipo", { ascending: true });
 
         if (error) {
             throw error;

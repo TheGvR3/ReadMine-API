@@ -224,14 +224,12 @@ export async function getOpereByTipo(req, res) {
 CREATE OR REPLACE FUNCTION create_opera(
     p_titolo TEXT,
     p_tipo_opera BIGINT,
-    p_isbn_issn TEXT DEFAULT NULL,
     p_anno_pubblicazione INT DEFAULT NULL,
     p_editore TEXT DEFAULT NULL,
     p_lingua_originale TEXT DEFAULT NULL,
     p_stato_opera TEXT DEFAULT 'finito',
     p_id_serie BIGINT DEFAULT NULL,
     p_autori BIGINT[] DEFAULT ARRAY[]::BIGINT[],
-    -- NUOVO PARAMETRO per gli ID dei generi
     p_generi BIGINT[] DEFAULT ARRAY[]::BIGINT[]
 )
 RETURNS BIGINT AS $$
@@ -239,8 +237,24 @@ DECLARE
     opera_id BIGINT;
 BEGIN
     -- 1. Inserisci l'opera e ottieni l'ID generato
-    INSERT INTO public.opere (titolo, tipo_opera, stato_opera, id_serie)
-    VALUES (p_titolo, p_tipo_opera, p_stato_opera, p_id_serie)
+    INSERT INTO public.opere (
+        titolo, 
+        tipo_opera, 
+        anno_pubblicazione, 
+        editore, 
+        lingua_originale,
+        stato_opera, 
+        id_serie
+    )
+    VALUES (
+        p_titolo, 
+        p_tipo_opera,
+        p_anno_pubblicazione, 
+        p_editore, 
+        p_lingua_originale,
+        p_stato_opera, 
+        p_id_serie
+    )
     RETURNING id_opera INTO opera_id;
 
     -- 2. Inserisci gli autori, solo se l'array p_autori non è vuoto
@@ -252,7 +266,7 @@ BEGIN
         FROM UNNEST(p_autori) AS id_autore;
     END IF;
     
-    -- 3. Inserisci i generi (NUOVA LOGICA)
+    -- 3. Inserisci i generi
     IF array_length(p_generi, 1) IS NOT NULL AND array_length(p_generi, 1) > 0 THEN
         INSERT INTO public.generi_opere (id_genere, id_opera)
         SELECT 
@@ -266,35 +280,49 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql
 SECURITY DEFINER;
-
  */
 
 export async function createOpera(req, res) {
-    const { titolo, tipo_opera, stato_opera, id_serie, autori } = req.body;
+    const {
+        titolo,
+        anno_pubblicazione,
+        editore,
+        lingua_originale,
+        tipo_opera,
+        stato_opera,
+        id_serie,
+        autori,
+        generi
+    } = req.body;
 
-    // Preparazione dei dati per la funzione
     const stato = stato_opera || 'finito';
+    const anno = anno_pubblicazione || null;
+    const edit = editore || null;
+    const lingua = lingua_originale || null;
     const serie = id_serie || null;
     const lista_autori = autori || [];
+    const lista_generi = generi || [];
 
     try {
-        // Chiama la funzione di database (RPC)
         const { data: operaId, error } = await supabase.rpc('create_opera', {
             p_titolo: titolo,
             p_tipo_opera: tipo_opera,
+            p_anno_pubblicazione: anno,
+            p_editore: edit,
+            p_lingua_originale: lingua,
             p_stato_opera: stato,
             p_id_serie: serie,
-            p_autori: lista_autori
+            p_autori: lista_autori,
+            p_generi: lista_generi
         });
 
         if (error) {
-            // Se c'è un errore, significa che la transazione lato DB è fallita
             throw new Error(error.message);
         }
 
         res.status(201).json({
-            message: "Opera creata con successo tramite funzione DB",
-            id_opera: operaId, // OperaId è il valore ritornato dalla funzione
+            message: "Opera creata con successo",
+            id_opera: operaId,
         });
 
     } catch (error) {
@@ -311,16 +339,14 @@ export async function createOpera(req, res) {
 CREATE OR REPLACE FUNCTION update_opera(
     p_id_opera BIGINT,
     p_titolo TEXT,
-    p_isbn_issn TEXT DEFAULT NULL,
     p_anno_pubblicazione INT DEFAULT NULL,
     p_editore TEXT DEFAULT NULL,
     p_lingua_originale TEXT DEFAULT NULL,
     p_tipo_opera BIGINT DEFAULT NULL,
     p_stato_opera TEXT DEFAULT NULL,
     p_id_serie BIGINT DEFAULT NULL,
-    p_autori BIGINT[] DEFAULT NULL,  -- Array di nuovi id_autore
-    -- NUOVO PARAMETRO per gli ID dei generi
-    p_generi BIGINT[] DEFAULT NULL  -- Array di nuovi id_genere
+    p_autori BIGINT[] DEFAULT NULL, 	-- Array di nuovi id_autore
+    p_generi BIGINT[] DEFAULT NULL 	-- Array di nuovi id_genere
 )
 RETURNS BIGINT AS $$
 DECLARE
@@ -334,10 +360,14 @@ BEGIN
         RETURN 0; 
     END IF;
 
-    -- 1. Aggiorna la tabella opere (solo i campi forniti, evitando NULL)
+    -- 1. Aggiorna la tabella opere (Utilizza COALESCE per aggiornare solo i campi forniti)
     UPDATE public.opere
     SET
         titolo = COALESCE(p_titolo, titolo),
+        anno_pubblicazione = COALESCE(p_anno_pubblicazione, anno_pubblicazione),
+        editore = COALESCE(p_editore, editore),
+        lingua_originale = COALESCE(p_lingua_originale, lingua_originale),
+        -- CAMPI PRECEDENTI:
         tipo_opera = COALESCE(p_tipo_opera, tipo_opera),
         stato_opera = COALESCE(p_stato_opera, stato_opera),
         id_serie = COALESCE(p_id_serie, id_serie)
@@ -358,7 +388,7 @@ BEGIN
         END IF;
     END IF;
 
-    -- 3. Sincronizza la tabella generi_opere (NUOVA LOGICA: solo se p_generi è stato fornito)
+    -- 3. Sincronizza la tabella generi_opere (solo se p_generi è stato fornito)
     IF p_generi IS NOT NULL THEN
         -- a) Elimina tutti i vecchi riferimenti ai generi dell'opera
         DELETE FROM public.generi_opere WHERE id_opera = p_id_opera;
@@ -383,17 +413,29 @@ SECURITY DEFINER;
 export async function updateOpera(req, res) {
     const { id_opera } = req.params;
     // req.body può contenere i campi opzionali e l'array autori
-    const { titolo, tipo_opera, stato_opera, id_serie, autori } = req.body;
+    const { titolo,
+        anno_pubblicazione,
+        editore,
+        lingua_originale,
+        tipo_opera,
+        stato_opera,
+        id_serie,
+        autori,
+        generi } = req.body;
 
     try {
         // Chiama la Remote Procedure Call (RPC)
         const { data: updatedId, error } = await supabase.rpc('update_opera', {
             p_id_opera: id_opera,
+            p_anno_pubblicazione: anno_pubblicazione,
+            p_editore: editore,
+            p_lingua_originale: lingua_originale,
             p_titolo: titolo,
             p_tipo_opera: tipo_opera,
             p_stato_opera: stato_opera,
             p_id_serie: id_serie,
-            p_autori: autori
+            p_autori: autori,
+            p_generi: generi
         });
 
         if (error) {
@@ -527,7 +569,7 @@ export async function addGenereToOpera(req, res) {
     try {
         const { error } = await supabase
             .from('generi_opere')
-            .insert(payload); 
+            .insert(payload);
 
         if (error) {
 
@@ -557,10 +599,10 @@ export async function removeGenereFromOpera(req, res) {
 
     try {
         const { error, count } = await supabase
-            .from('generi_opere') 
+            .from('generi_opere')
             .delete()
-            .eq('id_genere', id_genere) 
-            .eq('id_opera', id_opera) 
+            .eq('id_genere', id_genere)
+            .eq('id_opera', id_opera)
             .select('*', { count: 'exact' });
 
         if (error) {
@@ -577,7 +619,7 @@ export async function removeGenereFromOpera(req, res) {
         res.status(200).json({
             message: 'Genere rimosso dall\'opera con successo'
         });
-        
+
     } catch (error) {
         await errorLogger(`[removeGenereFromOpera] - Errore durante la rimozione del genere dall'opera: ${error.message}\n`).catch(console.error);
         res.status(500).json({ error: 'Errore durante la rimozione del genere dall\'opera' });
