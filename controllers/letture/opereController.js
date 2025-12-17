@@ -6,6 +6,7 @@ CREATE OR REPLACE VIEW get_all_opere_view AS
 SELECT 
     o.id_opera,
     o.titolo,
+    o.id_serie,
     o.isbn_issn,
     o.anno_pubblicazione,
     o.editore,
@@ -32,6 +33,7 @@ LEFT JOIN generi g ON go.id_genere = g.id_genere
 
 GROUP BY 
     o.id_opera, 
+    o.id_serie,
     o.titolo, 
     c.nome_tipo, 
     o.stato_opera, 
