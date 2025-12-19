@@ -1,0 +1,25 @@
+2025-12-19T15:47:31.575Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 4: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+
+2025-12-19T15:47:41.331Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 7: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+
+2025-12-19T15:47:43.226Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 5: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+
+2025-12-19T15:49:47.098Z - [ Token scaduto: jwt expired ]
+2025-12-19T15:49:47.540Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 5: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+
+2025-12-19T15:49:49.414Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 4: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+
+2025-12-19T15:50:12.099Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 4: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+
+2025-12-19T15:50:15.541Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 3: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+
+2025-12-19T15:51:08.091Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 1: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+
+2025-12-19T15:53:32.331Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 4: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+
+2025-12-19T15:53:40.920Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 4: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+
+2025-12-19T15:53:44.793Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 1: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+
+2025-12-19T15:53:50.102Z - [getOpereByAutore] - Errore durante il recupero dell'opere con autore 4: Could not find a relationship between 'opere' and 'get_all_opere_view' in the schema cache
+

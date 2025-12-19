@@ -13,6 +13,7 @@ SELECT
     o.lingua_originale,
     c.nome_tipo AS tipo,
     o.stato_opera,
+    a.id_autore,
     s.nome_serie AS serie,
     STRING_AGG(DISTINCT a.nome_autore, ', ') AS autori,
     
@@ -37,7 +38,8 @@ GROUP BY
     o.titolo, 
     c.nome_tipo, 
     o.stato_opera, 
-    s.nome_serie
+    s.nome_serie,
+    a.id_autore
 */
 
 export async function searchOpere(req, res) {
@@ -154,25 +156,27 @@ export async function getOpereByAutore(req, res) {
     const { id_autore } = req.params;
 
     try {
-        const { data: rows, error } = await supabase
-            .from('autori_opere')
-            .select('opere(get_all_opere_view(*))') // Chiede la vista per l'opera collegata
-            .eq('id_autore', id_autore);
+        // 1. Interroga DIRETTAMENTE la vista
+        const { data: opere, error } = await supabase
+            .from('get_all_opere_view') 
+            .select('*') 
+            .eq('id_autore', id_autore); // Il filtro funziona perché hai aggiunto id_autore alla vista
 
         if (error) {
             throw new Error(error.message);
         }
 
-        // Estrae i dati della vista dall'oggetto annidato
-        const opere = rows.map(row => row.opere);
-        if (opere.length === 0) {
+        // 2. Controllo se ci sono dati
+        if (!opere || opere.length === 0) {
             return res.status(404).json({ message: 'Nessuna opera trovata per questo autore' });
         }
 
+        // 3. Restituisci direttamente 'opere' (che è già un array di oggetti puliti)
         res.json(opere);
+
     } catch (error) {
-        await errorLogger(`[getOpereByAutore] - Errore durante il recupero dell'opere con autore ${req.params.id_autore}: ${error.message}\n`).catch(console.error);
-        res.status(500).json({ error: 'Errore durante il recupero dell\'opere' });
+        await errorLogger(`[getOpereByAutore] - Errore: ${error.message}\n`).catch(console.error);
+        res.status(500).json({ error: 'Errore durante il recupero delle opere' });
     }
 }
 
