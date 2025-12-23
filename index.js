@@ -21,7 +21,7 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Permette richieste senza origin (come app mobile o curl) 
     // o richieste che provengono da localhost
-    if (!origin || origin.startsWith("http://localhost") || origin.includes("vercel.app")) {
+    if (!origin || origin.startsWith("http://localhost") || origin.includes("vercel.app") || origin.includes("https://thegvr3.github.io/")) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
