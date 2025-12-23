@@ -1,6 +1,17 @@
 import express from "express";
 import { auth } from "../middlewares/auth.js";
-import { searchAutori, getAllAutori, getAutoreById, getAutoreByName, getAutoriByOpera, createAutore, updateAutore, deleteAutore } from "../controllers/letture/autoriController.js";
+
+// Importa i controller
+import { searchAutori } from "../controllers/letture/autori/searchAutori.js";
+import { getAllAutori } from "../controllers/letture/autori/getAllAutori.js";
+import {getAutoreById} from "../controllers/letture/autori/getAutoreById.js";
+import { getAutoreByName } from "../controllers/letture/autori/getAutoreByName.js";
+import { getAutoriByOpera } from "../controllers/letture/autori/getAutoriByOpera.js";
+import { createAutore } from "../controllers/letture/autori/createAutore.js";
+import { updateAutore } from "../controllers/letture/autori/updateAutore.js";
+import { deleteAutore } from "../controllers/letture/autori/deleteAutore.js";
+
+// Importa i validatori
 import { validateCreateAutore, validateUpdateAutore } from "../middlewares/validators/autoriValidator.js";
 import { validateId } from "../middlewares/validators/idValidator.js";
 

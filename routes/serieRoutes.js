@@ -1,6 +1,17 @@
 import express from "express";
 import { auth } from "../middlewares/auth.js";
-import { searchSerie, getAllSerie, getSerieById, getSerieByName, getSerieByOpera, createSerie, updateSerie, deleteSerie } from "../controllers/letture/serieController.js";
+
+// Serie Controllers
+import { searchSerie } from "../controllers/letture/serie/searchSerie.js";
+import { getAllSerie } from "../controllers/letture/serie/getAllSerie.js";
+import { getSerieById } from "../controllers/letture/serie/getSerieById.js";
+import { getSerieByName } from "../controllers/letture/serie/getSerieByName.js";
+import { getSerieByOpera } from "../controllers/letture/serie/getSerieByOpera.js";
+import { createSerie } from "../controllers/letture/serie/createSerie.js";
+import { updateSerie } from "../controllers/letture/serie/updateSerie.js";
+import { deleteSerie } from "../controllers/letture/serie/deleteSerie.js";
+
+// Validators
 import { createSerieValidator, updateSerieValidator } from "../middlewares/validators/serieValidator.js";
 import { validateId } from "../middlewares/validators/idValidator.js";
 
