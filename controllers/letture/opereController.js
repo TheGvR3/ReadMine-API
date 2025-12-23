@@ -72,7 +72,7 @@ export async function getAllOpere(req, res) {
         const { data: opere, error } = await supabase
             .from('get_all_opere_view')
             .select('*')
-            .order('id_opera', { ascending: true });
+            .order('titolo', { ascending: true });
 
         if (error) {
             throw new Error(error.message);

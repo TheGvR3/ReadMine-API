@@ -8,6 +8,7 @@ import tipoRoutes from "./tipoRoutes.js";
 import opereRoutes from "./opereRoutes.js";
 import serieRoutes from "./serieRoutes.js";
 import letturaRoutes from "./letturaRoutes.js";
+import chatbotRoutes from "./chatbotRoutes.js";
 import { auth } from "../middlewares/auth.js";
 
 const router = express.Router();
@@ -24,5 +25,5 @@ router.use("/tipo", tipoRoutes);
 router.use("/opere", opereRoutes);
 router.use("/serie", serieRoutes);
 router.use("/letture", letturaRoutes);
-
+router.use("/ai", chatbotRoutes);
 export default router;
