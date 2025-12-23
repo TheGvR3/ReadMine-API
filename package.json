@@ -24,7 +24,8 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.10.0",
-    "postgres": "^3.4.7"
+    "postgres": "^3.4.7",
+    "resend": "^6.6.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

@@ -18,7 +18,7 @@ app.use(cookieParser()); // Cookie parser middleware
 app.use(express.json()); //json body parser
 app.use(express.urlencoded({ extended: true })); //urlencoded body parser (form data)
 const corsOptions = {
-  origin: 'http://localhost:5173',  // URL del frontend (cambia se necessario)
+  origin: '*',  // URL del frontend (cambia se necessario)
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // I metodi HTTP permessi
   credentials: true,  // Abilita l'invio di cookie e credenziali
 };
@@ -61,4 +61,8 @@ app.use((err, req, res, next) => {
 });
 
 // Avvia il server
-app.listen(PORT, () => console.log(`Server avviato su http://localhost:${PORT}`));
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`Server avviato su http://localhost:${PORT}`));
+}
+
+export default app;
