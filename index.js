@@ -18,12 +18,18 @@ app.use(cookieParser()); // Cookie parser middleware
 app.use(express.json()); //json body parser
 app.use(express.urlencoded({ extended: true })); //urlencoded body parser (form data)
 const corsOptions = {
-  origin: [
-    'http://localhost:5173', 
-    'https://tuo-progetto-frontend.vercel.app' // Aggiungi questo quando pubblichi il front
-  ],  
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // I metodi HTTP permessi
-  credentials: true,  // Abilita l'invio di cookie e credenziali
+  origin: function (origin, callback) {
+    // Permette richieste senza origin (come app mobile o curl) 
+    // o richieste che provengono da localhost
+    if (!origin || origin.startsWith("http://localhost") || origin.includes("vercel.app")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
 };
 
 app.use(cors(corsOptions));
@@ -57,7 +63,7 @@ app.get("/status", (req, res) => {
 app.use("/", routes);
 
 // Gestione errori
-app.use((req, res) => {res.status(404).json({ error: "Endpoint non trovato" });});
+app.use((req, res) => { res.status(404).json({ error: "Endpoint non trovato" }); });
 app.use((err, req, res, next) => {
   console.error("Errore:", err);
   res.status(500).json({ error: "Errore interno del server" });
