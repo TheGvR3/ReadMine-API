@@ -18,7 +18,10 @@ app.use(cookieParser()); // Cookie parser middleware
 app.use(express.json()); //json body parser
 app.use(express.urlencoded({ extended: true })); //urlencoded body parser (form data)
 const corsOptions = {
-  origin: '*',  // URL del frontend (cambia se necessario)
+  origin: [
+    'http://localhost:5173', 
+    'https://tuo-progetto-frontend.vercel.app' // Aggiungi questo quando pubblichi il front
+  ],  
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // I metodi HTTP permessi
   credentials: true,  // Abilita l'invio di cookie e credenziali
 };
