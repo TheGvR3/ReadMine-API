@@ -7,7 +7,7 @@ const groq = new Groq({
 
 // Funzione per chiamare le tue API interne
 async function fetchInternalAPI(endpoint, token, method = 'GET', body = null) {
-    const baseURL = process.env.API_BASE_URL || 'http://localhost:3000';
+    const baseURL = process.env.API_BASE_URL || 'https://read-mine-api.vercel.app';
 
     try {
         const options = {
