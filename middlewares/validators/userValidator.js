@@ -8,23 +8,23 @@ export const validateProfileUpdate = [
         .isEmail().withMessage("Email non valida"),
 
     body("nome")
-        .optional()
+        .optional({ checkFalsy: true })
         .isLength({ min: 2 }).withMessage("Il nome deve contenere almeno 2 caratteri"),
 
     body("cognome")
-        .optional()
+        .optional({ checkFalsy: true })
         .isLength({ min: 2 }).withMessage("Il cognome deve contenere almeno 2 caratteri"),
 
     body("data_nascita")
-        .optional()
+        .optional({ checkFalsy: true })
         .isISO8601().withMessage("Data di nascita non valida"),
 
     body("indirizzo")
-        .optional()
+        .optional({ checkFalsy: true })
         .isLength({ min: 5 }).withMessage("Indirizzo troppo corto"),
 
     body("telefono")
-        .optional()
+        .optional({ checkFalsy: true })
         .matches(/^[0-9+\s()-]+$/).withMessage("Numero di telefono non valido"),
 
     handleValidationErrors,
