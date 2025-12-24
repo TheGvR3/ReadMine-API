@@ -18,7 +18,7 @@ export async function refreshToken(req, res) {
             .from('users')
             .select('*')
             .eq('refresh_token', refreshToken)
-            .single();
+            .maybeSingle();
 
         if (tokenErr || !tokenRows) {
             await errorLogger(`[refreshToken] - Errore DB token: ${tokenErr.message}`);
