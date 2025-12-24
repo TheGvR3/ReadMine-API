@@ -16,9 +16,9 @@ export async function auth(req, res, next) {
     } catch (error) {
         if (error.name === "TokenExpiredError") {
             await errorLogger(`[ Token scaduto: ${error.message} ]`).catch(console.error);
-            return res.status(403).json({ error: "Token scaduto" });
+            return res.status(401).json({ error: "Token scaduto" });
         }
         await errorLogger(`[ Token non valido: ${error.message} ]`).catch(console.error);
-        res.status(403).json({ error: "Token non valido" });
+        res.status(401).json({ error: "Token non valido" });
     }
 }
