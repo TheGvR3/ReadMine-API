@@ -10,6 +10,7 @@ export async function refreshToken(req, res) {
     }
 
     try {
+
         // 1. Pulisci e verifica il token
         const rawToken = refreshToken.trim();
         const decoded = jwt.verify(rawToken, process.env.JWT_REFRESH_SECRET);
@@ -37,26 +38,26 @@ export async function refreshToken(req, res) {
             });
             return res.status(401).json({ error: "Sessione non valida" });
         }
-    }
+
 
 
         // 4. Se tutto è ok, crea il nuovo access token
         const newAccessToken = jwt.sign(
-        { userId: user.id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: "10m" }
-    );
+            { userId: user.id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: "10m" }
+        );
 
-    // Restituisci il nuovo access token
-    res.json({ accessToken: newAccessToken });
-} catch (error) {
-    if (error.name === "TokenExpiredError" || error.name === "JsonWebTokenError") {
-        return res.status(401).json({ error: "Sessione scaduta, effettua il login" });
+        // Restituisci il nuovo access token
+        res.json({ accessToken: newAccessToken });
+    } catch (error) {
+        if (error.name === "TokenExpiredError" || error.name === "JsonWebTokenError") {
+            return res.status(401).json({ error: "Sessione scaduta, effettua il login" });
+        }
+
+        // Fallback sicuro per errori imprevisti
+        const crashMsg = error?.message || "Errore sconosciuto";
+        await errorLogger(`[refreshToken] - Errore critico: ${crashMsg}`);
+        return res.status(500).json({ error: "Errore interno" });
     }
-
-    // Fallback sicuro per errori imprevisti
-    const crashMsg = error?.message || "Errore sconosciuto";
-    await errorLogger(`[refreshToken] - Errore critico: ${crashMsg}`);
-    return res.status(500).json({ error: "Errore interno" });
-}
 }
