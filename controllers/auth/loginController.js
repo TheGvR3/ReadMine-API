@@ -18,8 +18,7 @@ export async function login(req, res) {
             .from('users')
             .select('*')
             .eq('email', identifier)
-            .limit(1)
-            .single();
+            .maybeSingle();
 
         if (fetchError) throw fetchError;
         if (!user) return res.status(401).json({ error: "Utente non trovato" });
