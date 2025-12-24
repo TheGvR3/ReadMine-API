@@ -5,7 +5,7 @@ export async function logout(req, res) {
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
-        return res.status(400).json({ error: "Refresh token mancante" });
+        return res.status(200).json({ message: "Nessuna sessione attiva." });
     }
 
     try {
@@ -29,9 +29,9 @@ export async function logout(req, res) {
         // Rimuoviamo il refresh token dal cookie
         res.clearCookie('refreshToken', {
             httpOnly: true,
-            // secure: true, // attiva in produzione con HTTPS
-            sameSite: 'Lax',
-            path: '/auth/'
+            secure: true,
+            sameSite: 'none',
+            path: '/'
         });
 
         return res.json({ message: "Logout effettuato, token invalidato." });
