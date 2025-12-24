@@ -3,6 +3,10 @@ import { errorLogger } from "../middlewares/errorLogger.js";
 
 // Middleware per autenticazione
 export async function auth(req, res, next) {
+    if (req.path === '/favicon.ico' || req.path === '/') {
+        return next();
+    }
+
     const header = req.headers["authorization"];
     if (!header || !header.startsWith("Bearer ")) {
         return res.status(401).json({ error: "Token mancante o formato non valido" });
