@@ -17,19 +17,27 @@ const PORT = process.env.PORT || 3000;
 app.use(cookieParser()); // Cookie parser middleware
 app.use(express.json()); //json body parser
 app.use(express.urlencoded({ extended: true })); //urlencoded body parser (form data)
+
+  const allowedOrigins = [
+  "http://localhost:5173", // URL standard di Vite
+  "https://read-mine.vercel.app" // Il tuo URL di produzione
+];
+
 const corsOptions = {
   origin: function (origin, callback) {
-    // Permette richieste senza origin (come app mobile o curl) 
-    // o richieste che provengono da localhost
-    if (!origin || origin.startsWith("http://localhost") || origin.includes("vercel.app")) {
+    // 1. Permetti richieste senza origin (come Postman o Mobile)
+    // 2. Controlla se l'origin è nella lista dei permessi
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error(`CORS Refused for origin: ${origin}`);
       callback(new Error("Not allowed by CORS"));
     }
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+  exposedHeaders: ["set-cookie"]
 };
 
 app.use(cors(corsOptions));
