@@ -6,7 +6,7 @@ export async function refreshToken(req, res) {
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
-        return res.status(400).json({ error: "Token mancante" });
+        return res.status(401).json({ error: "Sessione scaduta o token mancante" });
     }
 
     try {
@@ -18,15 +18,12 @@ export async function refreshToken(req, res) {
             .from('users')
             .select('*')
             .eq('refresh_token', refreshToken)
-            .limit(1);
+            .single();
 
-        if (tokenErr) {
+        if (tokenErr || !tokenRows) {
             await errorLogger(`[refreshToken] - Errore DB token: ${tokenErr.message}`);
-            return res.status(500).json({ error: "Errore server" });
-        }
-
-        if (!tokenRows || tokenRows.length === 0) {
-            return res.status(403).json({ error: "Token non valido" });
+            // Se il token non è nel DB, la sessione è stata revocata
+            return res.status(401).json({ error: "Sessione non valida" });
         }
 
         // Verifico se l'utente esiste nel database
@@ -34,29 +31,34 @@ export async function refreshToken(req, res) {
             .from('users')
             .select('*')
             .eq('id', decoded.userId)
-            .limit(1);
+            .single();
 
         if (userErr) {
             await errorLogger(`[refreshToken] - Errore DB utente: ${userErr.message}`);
             return res.status(500).json({ error: "Errore server" });
         }
 
-        if (!userRows || userRows.length === 0) {
+        if (!userRows) {
             return res.status(403).json({ error: "Utente non trovato" });
         }
-        
+
 
         // Crea un nuovo access token
         const newAccessToken = jwt.sign(
-            { userId: decoded.userId, email: userRows[0].email }, // Passiamo anche l'email per esempio
+            { userId: decoded.userId, email: userRows.email }, // Passiamo anche l'email per esempio
             process.env.JWT_SECRET,
             { expiresIn: "10m" } // Imposta la durata del nuovo access token
         );
-        
+
         // Restituisci il nuovo access token
         res.json({ accessToken: newAccessToken });
     } catch (error) {
-        await errorLogger(`[refreshToken] - Errore durante il refresh del token - Errore: ${error.message}`).catch(console.error);
-        res.status(500).json({ error: "Errore durante il refresh del token" });
+        // Gestione specifica degli errori JWT
+        if (error.name === "TokenExpiredError" || error.name === "JsonWebTokenError") {
+            return res.status(401).json({ error: "Sessione scaduta, effettua il login" });
+        }
+
+        await errorLogger(`[refreshToken] - Errore critico: ${error.message}`);
+        return res.status(500).json({ error: "Errore interno durante il refresh" });
     }
 }
