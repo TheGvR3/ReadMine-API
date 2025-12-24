@@ -29,6 +29,12 @@ export async function login(req, res) {
             return res.status(401).json({ error: "Password errata" });
         }
 
+        /*
+        Modifica alternativa per maggiore sicurezza (meno informativa):
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.status(401).json({ error: "Credenziali non valide" });
+        */
+
         // Creo i token JWT
         const accessToken = jwt.sign(
             { userId: user.id, email: user.email },
@@ -56,7 +62,7 @@ export async function login(req, res) {
             secure: true,
             sameSite: 'none',
             maxAge: 7 * 24 * 60 * 60 * 1000,
-            path: '/auth/',
+            path: '/',
         });
 
         // Risposta al client
