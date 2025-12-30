@@ -1,6 +1,6 @@
 import express from "express";
 import { auth } from "../middlewares/auth.js";
-import { getUserProfile, updatePassword, updateProfile} from "../controllers//user/index.js";
+import { getUserProfile, updatePassword, updateProfile } from "../controllers//user/index.js";
 import { handleEditorRequest } from "../controllers/user/handleEditorRequest.js";
 import { requestEditorRole } from "../controllers/user/requestEditoreRole.js";
 import { validateProfileUpdate, validatePasswordUpdate } from "../middlewares/validators/userValidator.js";
@@ -15,8 +15,12 @@ router.put("/profile/update", validateProfileUpdate, updateProfile);
 router.put("/profile/updatePassword", validatePasswordUpdate, updatePassword);
 // Rotta per richiedere il ruolo di editore
 router.post("/editorrequests", requestEditorRole);
-// Rotta per gestire le richieste di ruolo editore (accessibile solo agli admin)
-router.post("/handleeditorrequest", auth("admin"), handleEditorRequest);
+/**
+ * TODO: Proteggere queste rotte con il middleware auth dopo averlo corretto.
+ * - /editorrequests: deve essere accessibile a tutti gli utenti loggati (auth).
+ * - /handleeditorrequest: deve essere accessibile solo agli admin (auth con controllo ruoli).
+ */
+router.post("/handleeditorrequest", handleEditorRequest);
 
 
 
