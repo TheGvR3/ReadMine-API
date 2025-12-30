@@ -7,7 +7,6 @@ export async function requestEditorRole(req, res) {
     const userId = req.user.userId;
 
     try {
-        // 1. Recupera i dati dell'utente e controlla se ha richieste attive
         const { data: user, error: userError } = await supabase
             .from("users")
             .select("email, nome, editor")
@@ -17,33 +16,21 @@ export async function requestEditorRole(req, res) {
         if (userError || !user) return res.status(404).json({ error: "Utente non trovato" });
         if (user.editor) return res.status(400).json({ error: "Sei già un editor" });
 
-        // --- CONTROLLO RICHIESTE PRECEDENTI ---
-        const { data: existingRequest } = await supabase
-            .from("editor_requests")
-            .select("id, status")
-            .eq("user_id", userId)
-            .single();
-
-        if (existingRequest) {
-            if (existingRequest.status === 'pending') {
-                return res.status(400).json({ error: "Hai già una richiesta in sospeso" });
-            }
-
-            if (existingRequest.status === 'rejected') {
-                // Se era rifiutata, <span style="color: red;">eliminiamo</span> la vecchia per far posto alla nuova
-                // (Mantenendo il vincolo UNIQUE del database pulito)
-                await supabase.from("editor_requests").delete().eq("id", existingRequest.id);
-            }
-
-            // Se lo stato fosse 'approved', non arriverebbe qui grazie al controllo user.editor
-        }
-
-        // 2. <span style="color: green;">Crea</span> la nuova richiesta
+        // 1. <span style="color: green;">Crea</span> direttamente la nuova richiesta
+        // Non facciamo più la DELETE. Il database userà l'indice creato sopra
+        // per decidere se accettare l'inserimento o bloccarlo.
         const { error: insertError } = await supabase
             .from("editor_requests")
             .insert([{ user_id: userId, status: 'pending' }]);
 
-        if (insertError) throw insertError;
+        if (insertError) {
+            // Se il database risponde con errore di duplicato (23505)
+            // significa che esiste già una richiesta 'pending'
+            if (insertError.code === '23505') {
+                return res.status(400).json({ error: "Hai già una richiesta in sospeso. Attendi la valutazione." });
+            }
+            throw insertError;
+        }
 
         // 3. INVIO EMAIL ALL'UTENTE (Conferma ricezione)
         await resend.emails.send({

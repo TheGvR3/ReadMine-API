@@ -1,5 +1,4 @@
 import { supabase } from "../../db.js";
-import { Resend } from 'resend';
 import { errorLogger } from "../../middlewares/errorLogger.js";
 
 // Aggiungi questa esportazione al tuo file dei controller
