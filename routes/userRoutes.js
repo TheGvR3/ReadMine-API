@@ -4,6 +4,7 @@ import { getUserProfile, updatePassword, updateProfile } from "../controllers//u
 import { handleEditorRequest } from "../controllers/user/handleEditorRequest.js";
 import { requestEditorRole } from "../controllers/user/requestEditoreRole.js";
 import {getPendingEditorRequests} from "../controllers/user/getPendingEditorRequest.js";
+import { getEditorRequestsHistory } from "../controllers/user/getEditorRequestHistory.js";
 import { validateProfileUpdate, validatePasswordUpdate } from "../middlewares/validators/userValidator.js";
 
 
@@ -22,7 +23,7 @@ router.post("/editorrequests", requestEditorRole);
  * - /handleeditorrequest: deve essere accessibile solo agli admin (auth con controllo ruoli).
  */
 router.get("/editorrequestslist", getPendingEditorRequests);
-
+router.get("/editorrequestshistory", getEditorRequestsHistory);
 router.post("/handleeditorrequest", handleEditorRequest);
 
 
