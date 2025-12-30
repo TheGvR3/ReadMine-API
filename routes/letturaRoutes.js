@@ -17,10 +17,11 @@ import { deleteLettura } from "../controllers/letture/letture/deleteLettura.js";
 
 const router = express.Router();
 
+
+router.get("/utente/libri/:id_utente", getAllLibriByIdUser);
+router.get("/utente/manga/:id_utente", getAllMangaByIdUser);
+router.get("/utente/riviste/:id_utente", getAllRivisteByIdUser);
 router.get("/utente/:id_utente", getAllLettureByIdUser);
-router.get("/utente/:id_utente/libri/:id_utente", getAllLibriByIdUser);
-router.get("/utente/:id_utente/manga/:id_utente", getAllMangaByIdUser);
-router.get("/utente/:id_utente/riviste/:id_utente", getAllRivisteByIdUser);
 router.get("/lettura/:id_lettura", validateId("id_lettura"), getLetturaById);
 router.post("/", validateCreateLettura, createLettura);
 router.put("/:id_lettura", validateId("id_lettura"), validateUpdateLettura, updateLetturaController);
