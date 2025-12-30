@@ -2,7 +2,7 @@ import { body, param } from "express-validator";
 import { handleValidationErrors } from "./handleValidators.js";
 
 export const validateCreateLettura = [
-    body("id_user")
+    body("id_user") // Uniformato al DB
         .notEmpty().withMessage("L'id dell'utente è obbligatorio")
         .isInt({ min: 1 }).withMessage("L'id utente deve essere un numero intero valido"),
 
@@ -11,25 +11,36 @@ export const validateCreateLettura = [
         .isInt({ min: 1 }).withMessage("L'id opera deve essere un numero intero valido"),
 
     body("data_lettura")
-        .optional({ nullable: true })
-        .isISO8601().withMessage("La data di lettura deve essere in formato valido (YYYY-MM-DD)"),
+        .optional({ checkFalsy: true }) // Gestisce meglio stringhe vuote
+        .isISO8601().withMessage("La data deve essere in formato YYYY-MM-DD"),
 
     body("volume")
-        .optional({ nullable: true })
+        .optional({ checkFalsy: true })
         .isInt({ min: 0 }).withMessage("Il volume deve essere un numero intero positivo"),
 
     body("capitolo")
-        .optional({ nullable: true })
+        .optional({ checkFalsy: true })
         .isInt({ min: 0 }).withMessage("Il capitolo deve essere un numero intero positivo"),
 
     body("pagina")
-        .optional({ nullable: true })
+        .optional({ checkFalsy: true })
         .isInt({ min: 0 }).withMessage("La pagina deve essere un numero intero positivo"),
 
     body("stato")
         .optional()
         .isIn(["da_iniziare", "in_corso", "finito"])
-        .withMessage("Lo stato deve essere uno tra: 'da_iniziare', 'in_corso', 'finito'"),
+        .withMessage("Stato non valido"),
+
+    // Aggiungiamo la valutazione (CHECK 1-5 nel DB)
+    body("valutazione")
+        .optional({ checkFalsy: true })
+        .isInt({ min: 1, max: 5 }).withMessage("La valutazione deve essere compresa tra 1 e 5"),
+
+    body("note")
+        .optional({ checkFalsy: true })
+        .isString().withMessage("Le note devono essere un testo")
+        .trim(),
+
     handleValidationErrors,
 ];
 
@@ -39,26 +50,35 @@ export const validateUpdateLettura = [
         .isInt({ min: 1 }).withMessage("L'id lettura deve essere un numero intero valido"),
 
     body("data_lettura")
-        .optional({ nullable: true })
-        .isISO8601().withMessage("La data di lettura deve essere in formato valido (YYYY-MM-DD)"),
+        .optional({ checkFalsy: true })
+        .isISO8601().withMessage("La data deve essere in formato YYYY-MM-DD"),
 
     body("volume")
-        .optional({ nullable: true })
+        .optional({ checkFalsy: true })
         .isInt({ min: 0 }).withMessage("Il volume deve essere un numero intero positivo"),
 
     body("capitolo")
-        .optional({ nullable: true })
+        .optional({ checkFalsy: true })
         .isInt({ min: 0 }).withMessage("Il capitolo deve essere un numero intero positivo"),
 
     body("pagina")
-        .optional({ nullable: true })
+        .optional({ checkFalsy: true })
         .isInt({ min: 0 }).withMessage("La pagina deve essere un numero intero positivo"),
 
     body("stato")
         .optional()
         .isIn(["da_iniziare", "in_corso", "finito"])
-        .withMessage("Lo stato deve essere uno tra: 'da_iniziare', 'in_corso', 'finito'"),
+        .withMessage("Stato non valido"),
+
+    // Aggiunti per coerenza con la nuova tabella
+    body("valutazione")
+        .optional({ checkFalsy: true })
+        .isInt({ min: 1, max: 5 }).withMessage("La valutazione deve essere tra 1 e 5"),
+
+    body("note")
+        .optional({ checkFalsy: true })
+        .isString()
+        .trim(),
 
     handleValidationErrors,
 ];
-
