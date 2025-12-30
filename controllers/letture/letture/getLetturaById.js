@@ -5,7 +5,6 @@ export async function getLetturaById(req, res) {
     const { id_lettura } = req.params;
 
     try {
-        // Recuperiamo la lettura specifica includendo i dettagli dell'opera
         const { data, error } = await supabase
             .from('letture')
             .select(`
@@ -18,24 +17,17 @@ export async function getLetturaById(req, res) {
                 )
             `)
             .eq('id_lettura', id_lettura)
-            .maybeSingle(); // Restituisce l'oggetto o null (non un array)
+            .maybeSingle(); // Fondamentale: estrae l'oggetto direttamente
 
-        if (error) {
-            throw new Error(error.message);
-        }
+        if (error) throw new Error(error.message);
 
         if (!data) {
-            return res.status(404).json({ message: 'Lettura non trovata' });
+            return res.status(404).json({ error: 'Lettura non trovata' });
         }
 
         res.json(data);
     } catch (error) {
-        await errorLogger(
-            `[getLetturaById] - Errore durante il recupero della lettura: ${error.message}`
-        ).catch(console.error);
-        
-        res.status(500).json({ 
-            error: 'Errore interno durante il recupero della lettura' 
-        });
+        await errorLogger(`[getLetturaById] - Errore: ${error.message}`);
+        res.status(500).json({ error: 'Errore interno nel recupero della lettura' });
     }
 }
