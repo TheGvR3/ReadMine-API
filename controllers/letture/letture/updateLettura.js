@@ -1,13 +1,13 @@
 /*
-CREATE OR REPLACE FUNCTION update_lettura_v2(
+CREATE OR REPLACE FUNCTION update_lettura_v3(
     p_id_lettura BIGINT,
-    p_data_lettura DATE DEFAULT NULL,
-    p_volume INT DEFAULT NULL,
-    p_capitolo INT DEFAULT NULL,
-    p_pagina INT DEFAULT NULL,
-    p_stato stato_lettura DEFAULT NULL,
-    p_valutazione INT DEFAULT NULL,
-    p_note TEXT DEFAULT NULL
+    p_data_lettura DATE,
+    p_volume INT,
+    p_capitolo INT,
+    p_pagina INT,
+    p_stato stato_lettura,
+    p_valutazione INT,
+    p_note TEXT
 )
 RETURNS BOOLEAN AS $$
 BEGIN
@@ -16,16 +16,16 @@ BEGIN
         RAISE EXCEPTION 'Lettura non trovata' USING ERRCODE = 'P0002';
     END IF;
 
-    -- Aggiornamento dinamico: usa COALESCE per mantenere i vecchi valori se i parametri sono NULL
+    -- Aggiornamento diretto: se il parametro è NULL, il campo diventerà NULL
     UPDATE public.letture
     SET 
-        data_lettura = COALESCE(p_data_lettura, data_lettura),
-        volume = COALESCE(p_volume, volume),
-        capitolo = COALESCE(p_capitolo, capitolo),
-        pagina = COALESCE(p_pagina, pagina),
-        stato = COALESCE(p_stato, stato),
-        valutazione = COALESCE(p_valutazione, valutazione),
-        note = COALESCE(p_note, note)
+        data_lettura = p_data_lettura,
+        volume = p_volume,
+        capitolo = p_capitolo,
+        pagina = p_pagina,
+        stato = p_stato,
+        valutazione = p_valutazione,
+        note = p_note
     WHERE id_lettura = p_id_lettura;
 
     RETURN TRUE;
@@ -49,15 +49,16 @@ export async function updateLettura(req, res) {
     } = req.body;
 
     try {
-        const { data, error } = await supabase.rpc('update_lettura_v2', {
+        // Chiamiamo la v3 (assicurati di averla creata nel DB)
+        const { data, error } = await supabase.rpc('update_lettura_v3', {
             p_id_lettura: parseInt(id_lettura, 10),
             p_data_lettura: data_lettura || null,
-            p_volume: volume !== undefined ? volume : null, // Usa undefined check
-            p_capitolo: capitolo !== undefined ? capitolo : null,
-            p_pagina: pagina !== undefined ? pagina : null,
+            p_volume: volume === "" ? null : volume, 
+            p_capitolo: capitolo === "" ? null : capitolo,
+            p_pagina: pagina === "" ? null : pagina,
             p_stato: stato || null,
-            p_valutazione: valutazione !== undefined ? valutazione : null,
-            p_note: note !== undefined ? note : null
+            p_valutazione: valutazione === "" ? null : valutazione,
+            p_note: note === "" ? null : note
         });
 
         if (error) {
