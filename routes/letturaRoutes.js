@@ -11,9 +11,9 @@ import { deleteLettura } from "../controllers/letture/letture/deleteLettura.js";
 const router = express.Router();
 
 router.get("/:id_utente", getAllLettureByIdUser);
-router.get("/lettura/:id_lettura", getLetturaById);
+router.get("/lettura/:id_lettura", validateId("id_lettura"), getLetturaById);
 router.post("/", validateCreateLettura, createLettura);
-router.put("/:id_lettura", validateId, validateUpdateLettura, updateLetturaController);
-router.delete("/:id_lettura", validateId, deleteLettura);
+router.put("/:id_lettura", validateId("id_lettura"), validateUpdateLettura, updateLetturaController);
+router.delete("/:id_lettura", validateId("id_lettura"), deleteLettura);
 
 export default router;
