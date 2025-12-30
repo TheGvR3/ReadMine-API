@@ -45,21 +45,35 @@ export async function requestEditorRole(req, res) {
 
         if (insertError) throw insertError;
 
-        // 3. INVIO EMAIL (Logica invariata...)
+        // 3. INVIO EMAIL ALL'UTENTE (Conferma ricezione)
         await resend.emails.send({
             from: 'ReadMine <onboarding@resend.dev>',
             to: user.email,
             subject: 'Richiesta ruolo Editor ricevuta',
-            html: `<h2>Ciao ${user.nome || 'utente'},</h2><p>Abbiamo ricevuto la tua nuova richiesta...</p>`
+            html: `
+        <div style="font-family: sans-serif; color: #333;">
+            <h2>Ciao ${user.nome || 'utente'},</h2>
+            <p>Abbiamo ricevuto la tua richiesta per diventare **Editor**.</p>
+            <p>Riceverai un'email non appena la richiesta verrà elaborata.</p>
+        </div>
+      `
         });
 
-        // Notifica Admin
+        // 4. INVIO EMAIL ALL'ADMIN (Notifica nuova richiesta)
         await resend.emails.send({
             from: 'Sistema <onboarding@resend.dev>',
             to: 'saracino.g.ivano@gmail.com',
             subject: '🔔 Nuova richiesta ruolo Editor',
-            html: `<p>L'utente <strong>${user.nome}</strong> ha inviato una richiesta.</p>
-                   <a href="https://read-mine.vercel.app/">Vai al pannello admin</a>`
+            html: `
+        <div style="font-family: sans-serif; color: #333;">
+            <h2>Nuova richiesta ricevuta</h2>
+            <p>L'utente <strong>${user.nome} ${user.cognome || ''}</strong> (${user.email}) ha richiesto di diventare un <strong>Editor</strong>.</p>
+            <p>Puoi gestire la richiesta direttamente dal pannello admin.</p>
+            <p></p><a href="https://read-mine.vercel.app/">Vai al pannello admin</a></p>
+            <hr />
+            <small>ID Utente: ${userId}</small>
+        </div>
+      `
         });
 
         res.status(201).json({ message: "Richiesta inviata con successo" });
