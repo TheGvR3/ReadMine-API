@@ -28,7 +28,7 @@ export const validateCreateLettura = [
 
     body("stato")
         .optional()
-        .isIn(["da_iniziare", "in_corso", "finito"])
+        .isIn(["da_iniziare", "in_corso", "finito", "abbandonato"])
         .withMessage("Stato non valido"),
 
     // Aggiungiamo la valutazione (CHECK 1-5 nel DB)
@@ -67,7 +67,7 @@ export const validateUpdateLettura = [
 
     body("stato")
         .optional()
-        .isIn(["da_iniziare", "in_corso", "finito"])
+        .isIn(["da_iniziare", "in_corso", "finito", "abbandonato"])
         .withMessage("Stato non valido"),
 
     // Aggiunti per coerenza con la nuova tabella
