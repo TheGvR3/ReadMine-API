@@ -17,7 +17,7 @@ export async function getUserProfile(req, res) {
 
     res.json(data);
   } catch (error) {
-    await errorLogger(`[getUserProfile] - Errore nel recupero del profilo: ${error.message}`).catch(console.error);
+    await errorLogger(`[getUserProfile]  - Errore nel recupero del profilo: ${error.message}`).catch(console.error);
     res.status(500).json({ error: "Errore interno del server" });
   }
 }
