@@ -66,6 +66,7 @@ export async function requestEditorRole(req, res) {
             <h2>Nuova richiesta ricevuta</h2>
             <p>L'utente <strong>${user.nome} ${user.cognome || ''}</strong> (${user.email}) ha richiesto di diventare un <strong>Editor</strong>.</p>
             <p>Puoi gestire la richiesta direttamente dal pannello admin.</p>
+            <p></p><a href="https://read-mine.vercel.app/">Vai al pannello admin</a></p>
             <hr />
             <small>ID Utente: ${userId}</small>
         </div>

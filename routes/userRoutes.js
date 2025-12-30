@@ -3,6 +3,7 @@ import { auth } from "../middlewares/auth.js";
 import { getUserProfile, updatePassword, updateProfile } from "../controllers//user/index.js";
 import { handleEditorRequest } from "../controllers/user/handleEditorRequest.js";
 import { requestEditorRole } from "../controllers/user/requestEditoreRole.js";
+import {getPendingEditorRequests} from "../controllers/user/getPendingEditorRequest.js";
 import { validateProfileUpdate, validatePasswordUpdate } from "../middlewares/validators/userValidator.js";
 
 
@@ -20,6 +21,8 @@ router.post("/editorrequests", requestEditorRole);
  * - /editorrequests: deve essere accessibile a tutti gli utenti loggati (auth).
  * - /handleeditorrequest: deve essere accessibile solo agli admin (auth con controllo ruoli).
  */
+router.get("/editorrequestslist", getPendingEditorRequests);
+
 router.post("/handleeditorrequest", handleEditorRequest);
 
 
