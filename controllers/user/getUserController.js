@@ -5,7 +5,7 @@ export async function getUserProfile(req, res) {
   try {
     const { data, error } = await supabase
       .from("users")
-      .select("id, email, nome, cognome, data_nascita, indirizzo, telefono, created_at")
+      .select("id, email, nome, cognome, data_nascita, indirizzo, telefono, created_at, editor")
       .eq("id", req.user.userId)
       .single();
 
