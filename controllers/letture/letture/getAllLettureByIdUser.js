@@ -2,11 +2,10 @@ import { supabase } from "../../../db.js";
 import { errorLogger } from "../../../middlewares/errorLogger.js";
 
 export async function getAllLettureByIdUser(req, res) {
-    const { id_user } = req.params;
+    // Usiamo id_utente per coerenza con il frontend
+    const { id_utente } = req.params; 
 
     try {
-        // Recupera le letture dell'utente ordinandole per data decrescente
-        // Nota: '*, opere(*)' recupera tutti i dati della lettura E i dati dell'opera associata
         const { data, error } = await supabase
             .from('letture')
             .select(`
@@ -16,7 +15,7 @@ export async function getAllLettureByIdUser(req, res) {
                     editore
                 )
             `)
-            .eq('id_user', id_user)
+            .eq('id_user', id_utente) // Mappa id_utente (input) su id_user (colonna DB)
             .order('data_lettura', { ascending: false, nullsFirst: false });
 
         if (error) {
@@ -26,7 +25,7 @@ export async function getAllLettureByIdUser(req, res) {
         res.json(data);
     } catch (error) {
         await errorLogger(
-            `[getAllLettureByIdUser] - Errore durante il recupero delle letture: ${error.message}`
+            `[getAllLettureByIdUser] - Errore recupero letture per utente ${id_utente}: ${error.message}`
         ).catch(console.error);
         
         res.status(500).json({ 

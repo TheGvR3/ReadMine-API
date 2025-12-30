@@ -2,7 +2,7 @@ import { body, param } from "express-validator";
 import { handleValidationErrors } from "./handleValidators.js";
 
 export const validateCreateLettura = [
-    body("id_user") // Uniformato al DB
+    body("id_utente") // Uniformato al DB
         .notEmpty().withMessage("L'id dell'utente è obbligatorio")
         .isInt({ min: 1 }).withMessage("L'id utente deve essere un numero intero valido"),
 
