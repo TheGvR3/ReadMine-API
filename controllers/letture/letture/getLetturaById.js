@@ -1,48 +1,47 @@
 import { supabase } from "../../../db.js";
 import { errorLogger } from "../../../middlewares/errorLogger.js";
 
+// Dettaglio singola lettura con opera + edizione embedded.
 export async function getLetturaById(req, res) {
     const { id_lettura } = req.params;
-    console.log("Richiesta ricevuta per ID Lettura:", id_lettura); // DEBUG
 
     try {
-        console.log("Eseguo query Supabase..."); // DEBUG
         const { data, error } = await supabase
-            .from('letture')
+            .from("letture")
             .select(`
                 *,
                 opere (
                     id_opera,
                     titolo,
+                    tipo_opera,
+                    stato_opera,
+                    lingua_originale,
+                    numero_volume,
+                    descrizione_opera
+                ),
+                edizioni (
+                    id_edizione,
+                    titolo_edizione,
+                    isbn_issn,
                     editore,
-                    stato_opera
+                    anno_pubblicazione,
+                    numero_pagine,
+                    copertina_url,
+                    lingua,
+                    traduttore
                 )
             `)
-            .eq('id_lettura', id_lettura)
+            .eq("id_lettura", id_lettura)
             .maybeSingle();
 
-        if (error) {
-            console.error("Errore query Supabase:", error.message); // DEBUG
-            throw error;
-        }
+        if (error) throw error;
+        if (!data) return res.status(404).json({ error: "Lettura non trovata" });
 
-        console.log("Dati recuperati:", data); // DEBUG
-
-        if (!data) {
-            return res.status(404).json({ error: 'Lettura non trovata' });
-        }
-
-        return res.json(data); // Usa return per sicurezza
-
+        return res.json(data);
     } catch (error) {
-        console.error("Errore Catch:", error.message); // DEBUG
-        // Se errorLogger non è configurato bene, potrebbe bloccare tutto qui
-        try {
-            await errorLogger(`[getLetturaById] - Errore: ${error.message}`);
-        } catch (logErr) {
-            console.error("Errore durante il logging:", logErr);
-        }
-        
-        return res.status(500).json({ error: 'Errore interno nel recupero della lettura' });
+        await errorLogger(
+            `[getLetturaById] - Errore lettura ${id_lettura}: ${error.message}`
+        ).catch(console.error);
+        return res.status(500).json({ error: "Errore interno nel recupero della lettura" });
     }
 }

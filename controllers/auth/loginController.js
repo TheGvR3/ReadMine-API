@@ -21,12 +21,12 @@ export async function login(req, res) {
             .maybeSingle();
 
         if (fetchError) throw fetchError;
-        if (!user) return res.status(401).json({ error: "Utente non trovato" });
+        if (!user) return res.status(401).json({ error: "Credenziali Errate" });
 
         // Confronto password
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) {
-            return res.status(401).json({ error: "Password errata" });
+            return res.status(401).json({ error: "Credenziali Errate" });
         }
 
         /*

@@ -1,35 +1,47 @@
 import { supabase } from "../../../db.js";
 import { errorLogger } from "../../../middlewares/errorLogger.js";
 
+// Tutte le letture di un utente con dati opera + edizione (se collegata).
+// Ordinate per data_inizio desc (le più recenti prima).
+// Le letture senza data_inizio (es. da_iniziare) finiscono in coda.
 export async function getAllLettureByIdUser(req, res) {
-    // Usiamo id_utente per coerenza con il frontend
-    const { id_utente } = req.params; 
+    const { id_utente } = req.params;
 
     try {
         const { data, error } = await supabase
-            .from('letture')
+            .from("letture")
             .select(`
                 *,
                 opere (
+                    id_opera,
                     titolo,
-                    editore
+                    tipo_opera,
+                    lingua_originale,
+                    numero_volume,
+                    stato_opera
+                ),
+                edizioni (
+                    id_edizione,
+                    titolo_edizione,
+                    isbn_issn,
+                    editore,
+                    anno_pubblicazione,
+                    numero_pagine,
+                    copertina_url,
+                    lingua,
+                    traduttore
                 )
             `)
-            .eq('id_user', id_utente) // Mappa id_utente (input) su id_user (colonna DB)
-            .order('data_lettura', { ascending: false, nullsFirst: false });
+            .eq("id_user", id_utente)
+            .order("data_inizio", { ascending: false, nullsFirst: false })
+            .order("id_lettura", { ascending: false });
 
-        if (error) {
-            throw new Error(error.message);
-        }
-
+        if (error) throw new Error(error.message);
         res.json(data);
     } catch (error) {
         await errorLogger(
-            `[getAllLettureByIdUser] - Errore recupero letture per utente ${id_utente}: ${error.message}`
+            `[getAllLettureByIdUser] - Errore utente ${id_utente}: ${error.message}`
         ).catch(console.error);
-        
-        res.status(500).json({ 
-            error: 'Errore interno durante il recupero delle letture' 
-        });
+        res.status(500).json({ error: "Errore interno durante il recupero delle letture" });
     }
 }

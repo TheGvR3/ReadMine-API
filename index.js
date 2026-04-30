@@ -4,6 +4,8 @@ import cors from "cors";
 import helmet from "helmet";
 import os from "os";
 import cookieParser from 'cookie-parser';
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger.js";
 
 //Routes
 import routes from "./routes/index.js";
@@ -43,7 +45,44 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(helmet()); //Sicurezza HTTP headers
 
-// Rotta base di test
+// Swagger UI: sempre attivo in dev; in produzione richiede ENABLE_SWAGGER=true
+const swaggerEnabled =
+  process.env.NODE_ENV !== "production" || process.env.ENABLE_SWAGGER === "true";
+
+if (swaggerEnabled) {
+  app.get("/api-docs.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(swaggerSpec);
+  });
+  app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, {
+      explorer: true,
+      customSiteTitle: "ReadMine API Docs",
+    })
+  );
+}
+
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     tags: [System]
+ *     summary: Stato API
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: API attiva
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: "API attiva" }
+ *                 uptime: { type: string, example: "1234s" }
+ *                 memoryUsage: { type: string, example: "78.45 MB" }
+ */
 app.get("/", (req, res) => {
   res.json({
     message: "API attiva",
@@ -52,7 +91,30 @@ app.get("/", (req, res) => {
   });
 });
 
-//Informazioni sulla macchina
+/**
+ * @swagger
+ * /status:
+ *   get:
+ *     tags: [System]
+ *     summary: Informazioni sulla macchina
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: Info sistema
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 nome: { type: string }
+ *                 version: { type: string }
+ *                 release: { type: string }
+ *                 arch: { type: string }
+ *                 totalMem: { type: string }
+ *                 freeMem: { type: string }
+ *                 memoryUsage: { type: string }
+ *                 uptime: { type: string }
+ */
 app.get("/status", (req, res) => {
   const machine = {
     nome: os.type(),
@@ -79,7 +141,12 @@ app.use((err, req, res, next) => {
 
 // Avvia il server
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => console.log(`Server avviato su http://localhost:${PORT}`));
+  app.listen(PORT, () => {
+    console.log(`Server avviato su http://localhost:${PORT}`);
+    if (swaggerEnabled) {
+      console.log(`Swagger UI disponibile su http://localhost:${PORT}/api-docs`);
+    }
+  });
 }
 
 export default app;

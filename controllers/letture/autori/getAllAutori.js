@@ -1,23 +1,22 @@
 import { supabase } from "../../../db.js";
 import { errorLogger } from "../../../middlewares/errorLogger.js";
+import { getPagination, paginatedResponse } from "../../../utils/pagination.js";
 
 export async function getAllAutori(req, res) {
+    const { page, limit, from, to } = getPagination(req);
+
     try {
-        const { data: rows, error } = await supabase
-            .from('autori')
-            .select('*')
-            .order('nome_autore', { ascending: true });
+        const { data, error, count } = await supabase
+            .from("autori")
+            .select("*", { count: "exact" })
+            .order("nome_autore", { ascending: true })
+            .range(from, to);
 
-        if (error) {
-            throw error;
-        }
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Nessun autore trovato' });
-        }
+        if (error) throw error;
 
-        res.json(rows);
+        res.json(paginatedResponse(data, count, page, limit));
     } catch (error) {
-        await errorLogger(`[getAllAutori] - Errore durante il recupero degli autori: ${error.message}\n`).catch(console.error);
-        res.status(500).json({ error: 'Errore durante il recupero degli autori' });
+        await errorLogger(`[getAllAutori] - ${error.message}`).catch(console.error);
+        res.status(500).json({ error: "Errore durante il recupero degli autori" });
     }
 }
