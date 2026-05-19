@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import os from "os";
+import crypto from "crypto";
 import cookieParser from 'cookie-parser';
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger.js";
@@ -49,13 +50,54 @@ app.use(helmet()); //Sicurezza HTTP headers
 const swaggerEnabled =
   process.env.NODE_ENV !== "production" || process.env.ENABLE_SWAGGER === "true";
 
+// Basic Auth per proteggere /api-docs in produzione.
+// In dev (NODE_ENV !== 'production') resta aperto se le credenziali non sono impostate.
+const swaggerUser = process.env.SWAGGER_USER;
+const swaggerPassword = process.env.SWAGGER_PASSWORD;
+const swaggerAuthRequired =
+  process.env.NODE_ENV === "production" || (swaggerUser && swaggerPassword);
+
+function safeEqual(a, b) {
+  const bufA = Buffer.from(a, "utf8");
+  const bufB = Buffer.from(b, "utf8");
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
+function swaggerBasicAuth(req, res, next) {
+  if (!swaggerAuthRequired) return next();
+
+  if (!swaggerUser || !swaggerPassword) {
+    return res
+      .status(503)
+      .json({ error: "Swagger non configurato: impostare SWAGGER_USER e SWAGGER_PASSWORD" });
+  }
+
+  const header = req.headers.authorization || "";
+  if (header.startsWith("Basic ")) {
+    const decoded = Buffer.from(header.slice(6), "base64").toString("utf8");
+    const idx = decoded.indexOf(":");
+    if (idx !== -1) {
+      const user = decoded.slice(0, idx);
+      const pass = decoded.slice(idx + 1);
+      if (safeEqual(user, swaggerUser) && safeEqual(pass, swaggerPassword)) {
+        return next();
+      }
+    }
+  }
+
+  res.set("WWW-Authenticate", 'Basic realm="ReadMine API Docs", charset="UTF-8"');
+  return res.status(401).send("Authentication required");
+}
+
 if (swaggerEnabled) {
-  app.get("/api-docs.json", (req, res) => {
+  app.get("/api-docs.json", swaggerBasicAuth, (req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.send(swaggerSpec);
   });
   app.use(
     "/api-docs",
+    swaggerBasicAuth,
     swaggerUi.serve,
     swaggerUi.setup(swaggerSpec, {
       explorer: true,

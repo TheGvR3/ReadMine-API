@@ -17,7 +17,6 @@ export async function getAllLettureByIdUser(req, res) {
                     titolo,
                     tipo_opera,
                     lingua_originale,
-                    numero_volume,
                     stato_opera
                 ),
                 edizioni (
@@ -29,7 +28,8 @@ export async function getAllLettureByIdUser(req, res) {
                     numero_pagine,
                     copertina_url,
                     lingua,
-                    traduttore
+                    traduttore,
+                    numero_volume
                 )
             `)
             .eq("id_user", id_utente)

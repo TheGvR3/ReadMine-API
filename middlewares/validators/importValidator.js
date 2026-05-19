@@ -27,7 +27,6 @@ const importItemRules = (prefix = "") => [
     body(`${prefix}id_opera`).optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }),
     body(`${prefix}tipo_opera`).optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }),
     body(`${prefix}id_serie`).optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }),
-    body(`${prefix}numero_volume_opera`).optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }),
     body(`${prefix}numero_volume_edizione`).optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }),
     body(`${prefix}titolo`).optional({ nullable: true }).isString().trim(),
     body(`${prefix}descrizione_opera`).optional({ nullable: true }).isString().trim(),

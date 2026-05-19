@@ -11,6 +11,7 @@ const ALLOWED_FIELDS = [
     "google_volume_id",
     "lingua",
     "traduttore",
+    "numero_volume",
 ];
 
 export async function updateEdizione(req, res) {

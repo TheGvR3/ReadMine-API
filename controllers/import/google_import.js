@@ -323,7 +323,7 @@ async function buildRpcParams(volume, body) {
 
     const {
         id_opera, titolo, descrizione_opera, lingua_originale,
-        tipo_opera, id_serie, numero_volume_opera, numero_volume_edizione,
+        tipo_opera, id_serie, numero_volume_edizione,
         autori, generi, traduttore, complete_empty_fields,
     } = body;
 
@@ -359,7 +359,6 @@ async function buildRpcParams(volume, body) {
             p_lingua_originale:       lingua_originale ?? m.opera.lingua_originale,
             p_descrizione_opera:      descrizione_opera ?? m.opera.descrizione_opera,
             p_id_serie:               id_serie || null,
-            p_numero_volume_opera:    numero_volume_opera || null,
             p_id_opera_esistente:     id_opera || null,
             p_autori_ids,
             p_autori_da_creare,

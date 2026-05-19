@@ -13,7 +13,7 @@ export async function getLetturaByOperaAndUser(req, res) {
             .select(`
                 id_lettura, id_user, id_opera, id_edizione, stato,
                 data_inizio, data_fine, valutazione, volume, capitolo, pagina, note, created_at,
-                edizioni ( id_edizione, titolo_edizione, editore, anno_pubblicazione, copertina_url )
+                edizioni ( id_edizione, titolo_edizione, editore, anno_pubblicazione, copertina_url, numero_volume )
             `)
             .eq("id_user", id_utente)
             .eq("id_opera", id_opera)

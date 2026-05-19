@@ -27,6 +27,9 @@ const sharedFields = [
     body("traduttore")
         .optional({ nullable: true, checkFalsy: true })
         .isString().trim().isLength({ max: 255 }),
+    body("numero_volume")
+        .optional({ nullable: true, checkFalsy: true })
+        .isInt({ min: 1 }).withMessage("Numero volume non valido"),
 ];
 
 export const validateCreateEdizione = [

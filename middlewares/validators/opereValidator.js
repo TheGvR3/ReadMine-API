@@ -17,9 +17,6 @@ const operaValidationRules = () => [
     body("id_serie")
         .optional({ nullable: true, checkFalsy: true })
         .isInt({ min: 1 }).withMessage("Serie deve essere un ID valido"),
-    body("numero_volume")
-        .optional({ nullable: true, checkFalsy: true })
-        .isInt({ min: 1 }).withMessage("Numero volume non valido"),
     body("lingua_originale")
         .optional({ nullable: true, checkFalsy: true })
         .isString().trim(),

@@ -13,6 +13,7 @@ export async function createEdizione(req, res) {
         google_volume_id,
         lingua,
         traduttore,
+        numero_volume,
     } = req.body;
 
     try {
@@ -27,6 +28,7 @@ export async function createEdizione(req, res) {
             p_google_volume_id: google_volume_id || null,
             p_lingua: lingua || null,
             p_traduttore: traduttore || null,
+            p_numero_volume: numero_volume || null,
         });
 
         if (error) {

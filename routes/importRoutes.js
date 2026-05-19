@@ -90,7 +90,7 @@ router.get("/google/preview/:volumeId", validateGooglePreview, previewGoogleVolu
  *               id_opera:           { type: integer, description: "Se presente: solo edizione" }
  *               tipo_opera:         { type: integer }
  *               id_serie:           { type: integer }
- *               numero_volume:      { type: integer }
+ *               numero_volume_edizione: { type: integer, description: "Numero del volume della pubblicazione fisica (manga/serie)" }
  *               titolo:             { type: string }
  *               descrizione_opera:  { type: string }
  *               lingua_originale:   { type: string }

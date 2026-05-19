@@ -8,7 +8,8 @@ export async function getOpereBySerie(req, res) {
         const { data: opere, error } = await supabase
             .from('get_all_opere_view')
             .select('*')
-            .eq('id_serie', id_serie);
+            .eq('id_serie', id_serie)
+            .order('prima_edizione_anno', { ascending: true, nullsFirst: false });
 
         if (opere.length === 0) {
             return res.status(404).json({ message: 'Nessuna opera trovata per questa serie' });
